@@ -1,0 +1,25 @@
+.row {
+  display: flex;
+}
+
+.block {
+  padding: 10px;
+  border: 1px solid black;
+  margin: 2px;
+}
+
+.blue {
+  background-color: blue;
+}
+
+.border {
+  background: orange;
+}
+
+.left {
+  background-color: green;
+}
+
+.right {
+  background-color: green;
+}
