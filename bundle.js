@@ -19887,6 +19887,10 @@
 
 	var _piece2 = _interopRequireDefault(_piece);
 
+	var _constants = __webpack_require__(162);
+
+	var _constants2 = _interopRequireDefault(_constants);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -19923,20 +19927,6 @@
 	      return finalPos;
 	    }
 	  }, {
-	    key: 'rotateCounterClockwise',
-	    value: function rotateCounterClockwise() {
-	      if (this.currentPiece.pieceType !== 0) {
-	        return this.rotate([[0, -1], [1, 0]]);
-	      }
-	    }
-	  }, {
-	    key: 'rotateClockwise',
-	    value: function rotateClockwise() {
-	      if (this.currentPiece.pieceType !== 0) {
-	        return this.rotate([[0, 1], [-1, 0]]);
-	      }
-	    }
-	  }, {
 	    key: 'translate',
 	    value: function translate(delta) {
 	      var finalPos = this.currentPiece.coords.map(function (coord) {
@@ -19961,32 +19951,27 @@
 	    key: 'updatePosition',
 	    value: function updatePosition(delta, callback) {
 	      var temp = void 0;
-	      if (typeof delta === 'function') {
-	        temp = delta();
+	      if (Array.isArray(delta[0])) {
+	        if (this.currentPiece.pieceType !== 0) {
+	          temp = this.rotate(delta);
+	        } else {
+	          temp = this.currentPiece.coords;
+	        }
 	      } else {
 	        temp = this.translate(delta);
 	      }
 	      var checkBorder = this.checkValid(temp);
 	      if (!checkBorder) {
 	        this.currentPiece.coords = temp;
-	        return;
 	      } else if (checkBorder === 'left') {
 	        this.currentPiece.coords = temp;
-	        this.updatePosition([0, 1]);
-	        return;
+	        this.updatePosition(_constants2.default.translateRight);
 	      } else if (checkBorder === 'right') {
 	        this.currentPiece.coords = temp;
-	        this.updatePosition([0, -1]);
-	        return;
+	        this.updatePosition(_constants2.default.translateLeft);
 	      } else if (checkBorder && callback) {
 	        callback();
-	        return;
 	      }
-	    }
-	  }, {
-	    key: 'moveDown',
-	    value: function moveDown() {
-	      this.updatePosition([1, 0], this.moveDownCallback.bind(this));
 	      this.view.forceUpdate();
 	    }
 	  }, {
@@ -19998,17 +19983,20 @@
 	        _this2.grid[coord[0]][coord[1]].filled = _this2.currentPiece.fillColor;
 	      });
 	      this.checkCompleteRows();
-	      this.makeNewPiece();
+	      if (this.checkGameOver()) {
+	        clearInterval(this.interval);
+	      } else {
+	        this.makeNewPiece();
+	      }
 	    }
 	  }, {
-	    key: 'moveLeft',
-	    value: function moveLeft() {
-	      this.updatePosition([0, -1]);
-	    }
-	  }, {
-	    key: 'moveRight',
-	    value: function moveRight() {
-	      this.updatePosition([0, 1]);
+	    key: 'checkGameOver',
+	    value: function checkGameOver() {
+	      for (var i = 2; i < 11; i += 1) {
+	        if (this.grid[0][i].filled) {
+	          return true;
+	        }
+	      }
 	    }
 	  }, {
 	    key: 'checkCompleteRows',
@@ -20057,18 +20045,17 @@
 
 	      document.addEventListener("keydown", function (e) {
 	        if (e.key === 'a') {
-	          _this4.moveLeft();
+	          _this4.updatePosition(_constants2.default.translateLeft);
 	        } else if (e.key === 'd') {
-	          _this4.moveRight();
+	          _this4.updatePosition(_constants2.default.translateRight);
 	        } else if (e.key === 's') {
-	          _this4.moveDown();
+	          _this4.updatePosition(_constants2.default.translateDown, _this4.moveDownCallback.bind(_this4));
 	        }
 	        if (e.key === 'q') {
-	          _this4.updatePosition(_this4.rotateCounterClockwise.bind(_this4));
+	          _this4.updatePosition(_constants2.default.rotateCounterClockwise);
 	        } else if (e.key === 'e') {
-	          _this4.updatePosition(_this4.rotateClockwise.bind(_this4));
+	          _this4.updatePosition(_constants2.default.rotateClockwise);
 	        }
-	        _this4.view.forceUpdate();
 	      });
 	    }
 	  }, {
@@ -20077,14 +20064,16 @@
 	      if (this.interval) {
 	        clearInterval(this.interval);
 	      }
-	      this.currentPiece = null;
 	      this.currentPiece = new _piece2.default();
 	      this.startPiece();
 	    }
 	  }, {
 	    key: 'startPiece',
 	    value: function startPiece() {
-	      this.interval = setInterval(this.moveDown.bind(this), 500);
+	      var callback = function callback() {
+	        this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
+	      };
+	      this.interval = setInterval(callback.bind(this), _constants2.default.gameSpeed);
 	    }
 	  }], [{
 	    key: 'buildRow',
@@ -20125,7 +20114,7 @@
 /* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20142,21 +20131,18 @@
 	    _classCallCheck(this, Piece);
 
 	    this.pieceType = Piece.getRandomIntInclusive();
-	    this.coords = _constants2.default[this.pieceType].init;
+	    this.coords = _constants2.default.pieces[this.pieceType].init;
 	    // this.pivot = CONSTANTS.piecesInit.pivot;
-	    this.fillColor = "blue";
+	    this.fillColor = _constants2.default.colors[Piece.getRandomIntInclusive()];
 	  }
 
 	  _createClass(Piece, null, [{
-	    key: "getRandomIntInclusive",
+	    key: 'getRandomIntInclusive',
 	    value: function getRandomIntInclusive() {
 	      var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 	      var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
 
-	      min = Math.ceil(min);
-	      max = Math.floor(max);
-	      var result = Math.floor(Math.random() * (max - min + 1)) + min;
-	      return result;
+	      return Math.floor(Math.random() * (max - min + 1)) + min;
 	    }
 	  }]);
 
@@ -20172,13 +20158,28 @@
 	"use strict";
 
 	var CONSTANTS = {
-	  0: { init: [[1, 5], [1, 6], [0, 5], [0, 6]] },
-	  1: { init: [[1, 4], [1, 5], [1, 6], [1, 7]] },
-	  2: { init: [[1, 5], [1, 6], [1, 7], [0, 6]] },
-	  3: { init: [[1, 5], [0, 6], [1, 6], [0, 7]] },
-	  4: { init: [[1, 5], [0, 5], [1, 6], [0, 4]] },
-	  5: { init: [[0, 5], [1, 5], [1, 6], [1, 7]] },
-	  6: { init: [[0, 7], [1, 7], [1, 6], [1, 5]] }
+
+	  gameSpeed: 300,
+
+	  pieces: {
+	    0: { init: [[1, 5], [1, 6], [0, 5], [0, 6]] },
+	    1: { init: [[1, 4], [1, 5], [1, 6], [1, 7]] },
+	    2: { init: [[1, 5], [1, 6], [1, 7], [0, 6]] },
+	    3: { init: [[1, 5], [0, 6], [1, 6], [0, 7]] },
+	    4: { init: [[1, 5], [0, 5], [1, 6], [0, 4]] },
+	    5: { init: [[0, 5], [1, 5], [1, 6], [1, 7]] },
+	    6: { init: [[0, 7], [1, 7], [1, 6], [1, 5]] }
+	  },
+
+	  colors: ["red", "blue", "orange", "yellow", "purple", "green", "red"],
+
+	  translateLeft: [0, -1],
+	  translateRight: [0, 1],
+	  translateDown: [1, 0],
+
+	  rotateClockwise: [[0, 1], [-1, 0]],
+
+	  rotateCounterClockwise: [[0, -1], [1, 0]]
 
 	};
 

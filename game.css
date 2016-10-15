@@ -5,21 +5,41 @@
 .block {
   padding: 10px;
   border: 1px solid black;
-  margin: 2px;
+  margin: 1px;
 }
 
 .blue {
   background-color: blue;
 }
 
+.red {
+  background-color: red;
+}
+
+.orange {
+  background-color: tomato;
+}
+
+.yellow {
+  background-color: yellow;
+}
+
+.purple {
+  background-color: purple;
+}
+
+.green {
+  background-color: green;
+}
+
 .border {
-  background: orange;
+  background: teal;
 }
 
 .left {
-  background-color: green;
+  background-color: teal;
 }
 
 .right {
-  background-color: green;
+  background-color: teal;
 }

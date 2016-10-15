@@ -1,4 +1,5 @@
 import Piece from './piece';
+import CONSTANTS from './constants';
 
 class Game {
   constructor(view) {
@@ -13,9 +14,9 @@ class Game {
     let center = this.currentPiece.coords[1];
     let relativePos = this.currentPiece.coords.map((coord) => {
       return (
-        [coord[0] - center[0],
-        coord[1] - center[1]
-        ]
+        [ coord[0] - center[0],
+          coord[1] - center[1]
+                                ]
       );
     });
 
@@ -27,31 +28,13 @@ class Game {
 
     let finalPos = rotated.map((coord) => {
       return (
-        [coord[0] + center[0],
-        coord[1] + center[1]
-        ]
+        [ coord[0] + center[0],
+          coord[1] + center[1]
+                                ]
       );
     });
 
     return finalPos;
-  }
-
-  rotateCounterClockwise() {
-    if (this.currentPiece.pieceType !== 0) {
-      return this.rotate(
-        [ [0,-1],
-          [1, 0] ]
-        );
-      }
-  }
-
-  rotateClockwise() {
-    if (this.currentPiece.pieceType !== 0) {
-      return this.rotate(
-        [ [0, 1 ],
-          [-1, 0] ]
-        );
-      }
   }
 
   translate(delta) {
@@ -73,31 +56,27 @@ class Game {
 
   updatePosition(delta, callback){
     let temp;
-    if (typeof delta === 'function') {
-      temp = delta();
+    if (Array.isArray(delta[0])) {
+      if (this.currentPiece.pieceType !== 0) {
+        temp = this.rotate(delta);
+      } else {
+        temp = this.currentPiece.coords;
+      }
     } else {
       temp = this.translate(delta);
     }
     let checkBorder = this.checkValid(temp);
     if (!checkBorder) {
       this.currentPiece.coords = temp;
-      return;
     } else if (checkBorder === 'left') {
       this.currentPiece.coords = temp;
-      this.updatePosition([0,1]);
-      return;
+      this.updatePosition(CONSTANTS.translateRight);
     } else if (checkBorder === 'right'){
       this.currentPiece.coords = temp;
-      this.updatePosition([0,-1]);
-      return;
+      this.updatePosition(CONSTANTS.translateLeft);
     } else if (checkBorder && callback) {
       callback();
-      return;
     }
-  }
-
-  moveDown() {
-    this.updatePosition([1,0], this.moveDownCallback.bind(this));
     this.view.forceUpdate();
   }
 
@@ -106,15 +85,19 @@ class Game {
       this.grid[coord[0]][coord[1]].filled = this.currentPiece.fillColor;
     });
     this.checkCompleteRows();
-    this.makeNewPiece();
+    if (this.checkGameOver()) {
+      clearInterval(this.interval);
+    } else {
+      this.makeNewPiece();
+    }
   }
 
-  moveLeft() {
-    this.updatePosition([0,-1]);
-  }
-
-  moveRight() {
-    this.updatePosition([0,1]);
+  checkGameOver() {
+    for (let i = 2; i < 11; i += 1) {
+      if (this.grid[0][i].filled) {
+        return true;
+      }
+    }
   }
 
   checkCompleteRows(){
@@ -157,18 +140,17 @@ class Game {
   addListeners(){
     document.addEventListener("keydown", (e) =>{
       if (e.key === 'a') {
-        this.moveLeft();
+        this.updatePosition(CONSTANTS.translateLeft);
       } else if (e.key === 'd') {
-        this.moveRight();
+        this.updatePosition(CONSTANTS.translateRight);
       } else if (e.key === 's') {
-        this.moveDown();
+        this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
       }
       if (e.key === 'q') {
-        this.updatePosition(this.rotateCounterClockwise.bind(this));
+        this.updatePosition(CONSTANTS.rotateCounterClockwise);
       } else if (e.key === 'e') {
-        this.updatePosition(this.rotateClockwise.bind(this));
+        this.updatePosition(CONSTANTS.rotateClockwise);
       }
-      this.view.forceUpdate();
     });
   }
 
@@ -176,20 +158,22 @@ class Game {
     if (this.interval) {
       clearInterval(this.interval);
     }
-    this.currentPiece = null;
     this.currentPiece = new Piece();
     this.startPiece();
   }
 
   startPiece() {
-    this.interval = setInterval(this.moveDown.bind(this), 500);
+    let callback = function() {
+      this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
+    };
+    this.interval = setInterval(callback.bind(this), CONSTANTS.gameSpeed);
   }
 
   static buildRow () {
     let row = [];
     for(let j = 0; j < 14; j += 1 ){
       if (j === 0 || j === 1 ) {
-        row.push({filled: 'left'});
+        row.push({filled: 'left' });
       } else if (j === 12 || j === 13) {
         row.push({filled: 'right'});
       }  else {
@@ -211,8 +195,5 @@ class Game {
     return grid;
   }
 }
-
-
-
 
 module.exports = Game;
