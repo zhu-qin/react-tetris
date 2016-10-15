@@ -16,7 +16,7 @@ const CONSTANTS = {
     "red",
     "blue",
     "orange",
-    "yellow",
+    "teal",
     "purple",
     "green",
     "red"

@@ -19850,7 +19850,7 @@
 	            }
 	          });
 	          var additionClass = void 0;
-	          if (unit) {
+	          if (unit.filled) {
 	            additionClass = unit.filled;
 	          }
 	          return _react2.default.createElement('div', { key: idx2, className: 'block ' + additionClass + ' ' + currentPieceClass });
@@ -19864,8 +19864,13 @@
 
 	      return _react2.default.createElement(
 	        'div',
-	        { className: 'board' },
-	        rows
+	        { className: 'app-wrapper' },
+	        _react2.default.createElement('div', { className: 'score-board' }),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'gameview' },
+	          rows
+	        )
 	      );
 	    }
 	  }]);
@@ -20096,7 +20101,7 @@
 	      var grid = [];
 	      for (var i = 0; i < 22; i += 1) {
 	        if (i === 21) {
-	          grid.push(Array(14).fill({ filled: 'border' }));
+	          grid.push(Array(14).fill({ filled: 'bottom' }));
 	        } else {
 	          grid.push(Game.buildRow());
 	        }
@@ -20132,8 +20137,7 @@
 
 	    this.pieceType = Piece.getRandomIntInclusive();
 	    this.coords = _constants2.default.pieces[this.pieceType].init;
-	    // this.pivot = CONSTANTS.piecesInit.pivot;
-	    this.fillColor = _constants2.default.colors[Piece.getRandomIntInclusive()];
+	    this.fillColor = _constants2.default.colors[this.pieceType];
 	  }
 
 	  _createClass(Piece, null, [{
@@ -20171,7 +20175,7 @@
 	    6: { init: [[0, 7], [1, 7], [1, 6], [1, 5]] }
 	  },
 
-	  colors: ["red", "blue", "orange", "yellow", "purple", "green", "red"],
+	  colors: ["red", "blue", "orange", "teal", "purple", "green", "red"],
 
 	  translateLeft: [0, -1],
 	  translateRight: [0, 1],

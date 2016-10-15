@@ -4,8 +4,7 @@ class Piece {
   constructor() {
     this.pieceType = Piece.getRandomIntInclusive();
     this.coords = CONSTANTS.pieces[this.pieceType].init;
-    // this.pivot = CONSTANTS.piecesInit.pivot;
-    this.fillColor = CONSTANTS.colors[Piece.getRandomIntInclusive()];
+    this.fillColor = CONSTANTS.colors[this.pieceType];
   }
 
   static getRandomIntInclusive(min = 0, max = 6) {

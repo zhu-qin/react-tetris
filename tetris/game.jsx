@@ -187,7 +187,7 @@ class Game {
     let grid = [];
     for(let i = 0; i < 22; i += 1){
       if (i === 21) {
-        grid.push(Array(14).fill({filled: 'border'}));
+        grid.push(Array(14).fill({filled: 'bottom'}));
       } else {
         grid.push(Game.buildRow());
       }

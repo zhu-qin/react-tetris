@@ -1,9 +1,18 @@
+.app-wrapper {
+  display: flex;
+}
+
+.score-board {
+  width: 200px;
+  border: 1px solid black;
+}
+
 .row {
   display: flex;
 }
 
 .block {
-  padding: 10px;
+  padding: 12px;
   border: 1px solid black;
   margin: 1px;
 }
@@ -16,12 +25,12 @@
   background-color: red;
 }
 
-.orange {
-  background-color: tomato;
+.teal {
+  background-color: teal;
 }
 
-.yellow {
-  background-color: yellow;
+.orange {
+  background-color: tomato;
 }
 
 .purple {
@@ -32,14 +41,7 @@
   background-color: green;
 }
 
-.border {
-  background: teal;
-}
-
-.left {
-  background-color: teal;
-}
-
-.right {
-  background-color: teal;
+.bottom, .left, .right {
+  padding: 0;
+  border: 0;
 }

@@ -23,12 +23,11 @@ class View extends React.Component {
           }
         });
         let additionClass;
-        if (unit) {
+        if (unit.filled) {
           additionClass = unit.filled;
         }
         return (
           <div key={idx2} className={`block ${additionClass} ${currentPieceClass}`}>
-          
           </div>
         );
       });
@@ -40,8 +39,13 @@ class View extends React.Component {
     });
 
     return (
-      <div className="board">
-        {rows}
+      <div className="app-wrapper">
+        <div className="score-board">
+
+        </div>
+        <div className="gameview">
+          {rows}
+        </div>
       </div>
     );
   }
