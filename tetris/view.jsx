@@ -28,7 +28,7 @@ class View extends React.Component {
         }
         return (
           <div key={idx2} className={`block ${additionClass} ${currentPieceClass}`}>
-
+          
           </div>
         );
       });

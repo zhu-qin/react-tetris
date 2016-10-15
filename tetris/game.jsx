@@ -97,13 +97,16 @@ class Game {
   }
 
   moveDown() {
-    this.updatePosition([1,0], () => {
-      this.currentPiece.coords.forEach((coord) => {
-        this.grid[coord[0]][coord[1]].filled = this.currentPiece.fillColor;
-      });
-      this.makeNewPiece();
-    });
+    this.updatePosition([1,0], this.moveDownCallback.bind(this));
     this.view.forceUpdate();
+  }
+
+  moveDownCallback(){
+    this.currentPiece.coords.forEach((coord) => {
+      this.grid[coord[0]][coord[1]].filled = this.currentPiece.fillColor;
+    });
+    this.checkCompleteRows();
+    this.makeNewPiece();
   }
 
   moveLeft() {
@@ -115,11 +118,44 @@ class Game {
   }
 
   checkCompleteRows(){
-    
+    let completedRows = [];
+    for (let i = 20; i >= 0; i -= 1) {
+      let emptySlots;
+      for(let j = 2; j < 14; j += 1) {
+        if (!this.grid[i][j].filled) {
+          emptySlots = true;
+        }
+      }
+
+      if(!emptySlots){
+        completedRows.push(i);
+      }
+    }
+
+    if (completedRows.length > 0) {
+      this.deleteFullRows(completedRows);
+    }
+
+  }
+
+  deleteFullRows(completedRows) {
+    completedRows.forEach((row) => {
+      delete this.grid[row];
+    });
+
+    this.grid = this.grid.filter((row) => {
+      if (row) {
+        return row;
+      }
+    });
+
+    completedRows.forEach((el) => {
+      this.grid.unshift(Game.buildRow());
+    });
   }
 
   addListeners(){
-    document.addEventListener("keypress", (e) =>{
+    document.addEventListener("keydown", (e) =>{
       if (e.key === 'a') {
         this.moveLeft();
       } else if (e.key === 'd') {
@@ -149,22 +185,28 @@ class Game {
     this.interval = setInterval(this.moveDown.bind(this), 500);
   }
 
+  static buildRow () {
+    let row = [];
+    for(let j = 0; j < 14; j += 1 ){
+      if (j === 0 || j === 1 ) {
+        row.push({filled: 'left'});
+      } else if (j === 12 || j === 13) {
+        row.push({filled: 'right'});
+      }  else {
+        row.push({});
+      }
+    }
+    return row;
+  }
+
   static makeGrid() {
     let grid = [];
     for(let i = 0; i < 22; i += 1){
-      let row = [];
-      for(let j = 0; j < 12; j += 1 ){
-        if (j === 0 ) {
-          row.push({filled: 'left'});
-        } else if (j === 11) {
-          row.push({filled: 'right'});
-        } else if (i === 0 || i === 21) {
-          row.push({filled: 'border'});
-        } else {
-          row.push({});
-        }
+      if (i === 21) {
+        grid.push(Array(14).fill({filled: 'border'}));
+      } else {
+        grid.push(Game.buildRow());
       }
-      grid.push(row);
     }
     return grid;
   }

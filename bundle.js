@@ -56,7 +56,7 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _view = __webpack_require__(161);
+	var _view = __webpack_require__(159);
 
 	var _view2 = _interopRequireDefault(_view);
 
@@ -19801,7 +19801,89 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _piece = __webpack_require__(160);
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactDom = __webpack_require__(158);
+
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+
+	var _game = __webpack_require__(160);
+
+	var _game2 = _interopRequireDefault(_game);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var View = function (_React$Component) {
+	  _inherits(View, _React$Component);
+
+	  function View(props) {
+	    _classCallCheck(this, View);
+
+	    var _this = _possibleConstructorReturn(this, (View.__proto__ || Object.getPrototypeOf(View)).call(this, props));
+
+	    _this.state = {
+	      game: new _game2.default(_this)
+	    };
+	    return _this;
+	  }
+
+	  _createClass(View, [{
+	    key: 'render',
+	    value: function render() {
+	      var game = this.state.game;
+
+	      var rows = game.grid.map(function (row, idx1) {
+	        var units = row.map(function (unit, idx2) {
+	          var currentPieceClass = void 0;
+
+	          game.currentPiece.coords.forEach(function (coord) {
+	            if (idx1 === coord[0] && idx2 === coord[1]) {
+	              currentPieceClass = game.currentPiece.fillColor;
+	            }
+	          });
+	          var additionClass = void 0;
+	          if (unit) {
+	            additionClass = unit.filled;
+	          }
+	          return _react2.default.createElement('div', { key: idx2, className: 'block ' + additionClass + ' ' + currentPieceClass });
+	        });
+	        return _react2.default.createElement(
+	          'div',
+	          { key: idx1, className: 'row' },
+	          units
+	        );
+	      });
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'board' },
+	        rows
+	      );
+	    }
+	  }]);
+
+	  return View;
+	}(_react2.default.Component);
+
+	module.exports = View;
+
+/***/ },
+/* 160 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _piece = __webpack_require__(161);
 
 	var _piece2 = _interopRequireDefault(_piece);
 
@@ -19904,15 +19986,19 @@
 	  }, {
 	    key: 'moveDown',
 	    value: function moveDown() {
+	      this.updatePosition([1, 0], this.moveDownCallback.bind(this));
+	      this.view.forceUpdate();
+	    }
+	  }, {
+	    key: 'moveDownCallback',
+	    value: function moveDownCallback() {
 	      var _this2 = this;
 
-	      this.updatePosition([1, 0], function () {
-	        _this2.currentPiece.coords.forEach(function (coord) {
-	          _this2.grid[coord[0]][coord[1]].filled = _this2.currentPiece.fillColor;
-	        });
-	        _this2.makeNewPiece();
+	      this.currentPiece.coords.forEach(function (coord) {
+	        _this2.grid[coord[0]][coord[1]].filled = _this2.currentPiece.fillColor;
 	      });
-	      this.view.forceUpdate();
+	      this.checkCompleteRows();
+	      this.makeNewPiece();
 	    }
 	  }, {
 	    key: 'moveLeft',
@@ -19926,26 +20012,63 @@
 	    }
 	  }, {
 	    key: 'checkCompleteRows',
-	    value: function checkCompleteRows() {}
+	    value: function checkCompleteRows() {
+	      var completedRows = [];
+	      for (var i = 20; i >= 0; i -= 1) {
+	        var emptySlots = void 0;
+	        for (var j = 2; j < 14; j += 1) {
+	          if (!this.grid[i][j].filled) {
+	            emptySlots = true;
+	          }
+	        }
+
+	        if (!emptySlots) {
+	          completedRows.push(i);
+	        }
+	      }
+
+	      if (completedRows.length > 0) {
+	        this.deleteFullRows(completedRows);
+	      }
+	    }
+	  }, {
+	    key: 'deleteFullRows',
+	    value: function deleteFullRows(completedRows) {
+	      var _this3 = this;
+
+	      completedRows.forEach(function (row) {
+	        delete _this3.grid[row];
+	      });
+
+	      this.grid = this.grid.filter(function (row) {
+	        if (row) {
+	          return row;
+	        }
+	      });
+
+	      completedRows.forEach(function (el) {
+	        _this3.grid.unshift(Game.buildRow());
+	      });
+	    }
 	  }, {
 	    key: 'addListeners',
 	    value: function addListeners() {
-	      var _this3 = this;
+	      var _this4 = this;
 
-	      document.addEventListener("keypress", function (e) {
+	      document.addEventListener("keydown", function (e) {
 	        if (e.key === 'a') {
-	          _this3.moveLeft();
+	          _this4.moveLeft();
 	        } else if (e.key === 'd') {
-	          _this3.moveRight();
+	          _this4.moveRight();
 	        } else if (e.key === 's') {
-	          _this3.moveDown();
+	          _this4.moveDown();
 	        }
 	        if (e.key === 'q') {
-	          _this3.updatePosition(_this3.rotateCounterClockwise.bind(_this3));
+	          _this4.updatePosition(_this4.rotateCounterClockwise.bind(_this4));
 	        } else if (e.key === 'e') {
-	          _this3.updatePosition(_this3.rotateClockwise.bind(_this3));
+	          _this4.updatePosition(_this4.rotateClockwise.bind(_this4));
 	        }
-	        _this3.view.forceUpdate();
+	        _this4.view.forceUpdate();
 	      });
 	    }
 	  }, {
@@ -19964,23 +20087,30 @@
 	      this.interval = setInterval(this.moveDown.bind(this), 500);
 	    }
 	  }], [{
+	    key: 'buildRow',
+	    value: function buildRow() {
+	      var row = [];
+	      for (var j = 0; j < 14; j += 1) {
+	        if (j === 0 || j === 1) {
+	          row.push({ filled: 'left' });
+	        } else if (j === 12 || j === 13) {
+	          row.push({ filled: 'right' });
+	        } else {
+	          row.push({});
+	        }
+	      }
+	      return row;
+	    }
+	  }, {
 	    key: 'makeGrid',
 	    value: function makeGrid() {
 	      var grid = [];
 	      for (var i = 0; i < 22; i += 1) {
-	        var row = [];
-	        for (var j = 0; j < 12; j += 1) {
-	          if (j === 0) {
-	            row.push({ filled: 'left' });
-	          } else if (j === 11) {
-	            row.push({ filled: 'right' });
-	          } else if (i === 0 || i === 21) {
-	            row.push({ filled: 'border' });
-	          } else {
-	            row.push({});
-	          }
+	        if (i === 21) {
+	          grid.push(Array(14).fill({ filled: 'border' }));
+	        } else {
+	          grid.push(Game.buildRow());
 	        }
-	        grid.push(row);
 	      }
 	      return grid;
 	    }
@@ -19992,7 +20122,7 @@
 	module.exports = Game;
 
 /***/ },
-/* 160 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20012,7 +20142,8 @@
 	    _classCallCheck(this, Piece);
 
 	    this.pieceType = Piece.getRandomIntInclusive();
-	    this.coords = _constants2.default.piecesInit[this.pieceType];
+	    this.coords = _constants2.default[this.pieceType].init;
+	    // this.pivot = CONSTANTS.piecesInit.pivot;
 	    this.fillColor = "blue";
 	  }
 
@@ -20020,11 +20151,12 @@
 	    key: "getRandomIntInclusive",
 	    value: function getRandomIntInclusive() {
 	      var min = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-	      var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3;
+	      var max = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 6;
 
 	      min = Math.ceil(min);
 	      max = Math.floor(max);
-	      return Math.floor(Math.random() * (max - min + 1)) + min;
+	      var result = Math.floor(Math.random() * (max - min + 1)) + min;
+	      return result;
 	    }
 	  }]);
 
@@ -20034,95 +20166,19 @@
 	module.exports = Piece;
 
 /***/ },
-/* 161 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactDom = __webpack_require__(158);
-
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-
-	var _game = __webpack_require__(159);
-
-	var _game2 = _interopRequireDefault(_game);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var View = function (_React$Component) {
-	  _inherits(View, _React$Component);
-
-	  function View(props) {
-	    _classCallCheck(this, View);
-
-	    var _this = _possibleConstructorReturn(this, (View.__proto__ || Object.getPrototypeOf(View)).call(this, props));
-
-	    _this.state = {
-	      game: new _game2.default(_this)
-	    };
-	    return _this;
-	  }
-
-	  _createClass(View, [{
-	    key: 'render',
-	    value: function render() {
-	      var game = this.state.game;
-
-	      var rows = game.grid.map(function (row, idx1) {
-	        var units = row.map(function (unit, idx2) {
-	          var currentPieceClass = void 0;
-
-	          game.currentPiece.coords.forEach(function (coord) {
-	            if (idx1 === coord[0] && idx2 === coord[1]) {
-	              currentPieceClass = game.currentPiece.fillColor;
-	            }
-	          });
-	          var additionClass = void 0;
-	          if (unit) {
-	            additionClass = unit.filled;
-	          }
-	          return _react2.default.createElement('div', { key: idx2, className: 'block ' + additionClass + ' ' + currentPieceClass });
-	        });
-	        return _react2.default.createElement(
-	          'div',
-	          { key: idx1, className: 'row' },
-	          units
-	        );
-	      });
-
-	      return _react2.default.createElement(
-	        'div',
-	        { className: 'board' },
-	        rows
-	      );
-	    }
-	  }]);
-
-	  return View;
-	}(_react2.default.Component);
-
-	module.exports = View;
-
-/***/ },
 /* 162 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 	var CONSTANTS = {
-	  piecesInit: [[[1, 5], [1, 6], [0, 5], [0, 6]], [[1, 4], [1, 5], [1, 6], [1, 7]], [[1, 5], [1, 6], [1, 7], [0, 6]], [[1, 5], [0, 6], [1, 6], [0, 7]], [[1, 5], [0, 5], [1, 6], [0, 4]]]
+	  0: { init: [[1, 5], [1, 6], [0, 5], [0, 6]] },
+	  1: { init: [[1, 4], [1, 5], [1, 6], [1, 7]] },
+	  2: { init: [[1, 5], [1, 6], [1, 7], [0, 6]] },
+	  3: { init: [[1, 5], [0, 6], [1, 6], [0, 7]] },
+	  4: { init: [[1, 5], [0, 5], [1, 6], [0, 4]] },
+	  5: { init: [[0, 5], [1, 5], [1, 6], [1, 7]] },
+	  6: { init: [[0, 7], [1, 7], [1, 6], [1, 5]] }
 
 	};
 
