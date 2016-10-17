@@ -3,13 +3,63 @@ import CONSTANTS from './constants';
 
 class Game {
   constructor(view) {
+    this.score = 0;
     this.view = view;
+    this.running = false;
     this.grid = Game.makeGrid();
-    this.currentPiece = undefined;
-    this.makeNewPiece();
+    this.nextPiece = new Piece();
+    this.currentPiece = new Piece();
+    this.speed = 500;
     this.addListeners();
   }
+  // INIT
+  makeNewPiece() {
+    this.currentPiece = this.nextPiece;
+    this.nextPiece = new Piece();
+  }
 
+  stopGame(){
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+    this.running = false;
+  }
+
+  startGame() {
+    let callback = function() {
+      this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
+    };
+    this.interval = setInterval(callback.bind(this), this.speed);
+    this.running = true;
+  }
+
+  keyDownEvent(e) {
+    if (this.running) {
+      if (e.key === 'a') {
+        this.updatePosition(CONSTANTS.translateLeft);
+      } else if (e.key === 'd') {
+        this.updatePosition(CONSTANTS.translateRight);
+      } else if (e.key === 's') {
+        this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
+      }
+      if (e.key === 'q') {
+        this.updatePosition(CONSTANTS.rotateCounterClockwise);
+      } else if (e.key === 'e') {
+        this.updatePosition(CONSTANTS.rotateClockwise);
+      }
+    }
+  }
+
+  addListeners(){
+    this.listener = this.keyDownEvent.bind(this);
+    document.addEventListener('keydown', this.listener);
+  }
+
+  removeListeners(){
+    document.removeEventListener('keydown', this.listener);
+  }
+
+// GAME LOGIC
   rotate(matrix) {
     let center = this.currentPiece.coords[1];
     let relativePos = this.currentPiece.coords.map((coord) => {
@@ -104,7 +154,7 @@ class Game {
     let completedRows = [];
     for (let i = 20; i >= 0; i -= 1) {
       let emptySlots;
-      for(let j = 2; j < 14; j += 1) {
+      for(let j = 2; j < CONSTANTS.gameWidth - 2; j += 1) {
         if (!this.grid[i][j].filled) {
           emptySlots = true;
         }
@@ -133,48 +183,18 @@ class Game {
     });
 
     completedRows.forEach((el) => {
+      this.score += 100;
       this.grid.unshift(Game.buildRow());
     });
   }
 
-  addListeners(){
-    document.addEventListener("keydown", (e) =>{
-      if (e.key === 'a') {
-        this.updatePosition(CONSTANTS.translateLeft);
-      } else if (e.key === 'd') {
-        this.updatePosition(CONSTANTS.translateRight);
-      } else if (e.key === 's') {
-        this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
-      }
-      if (e.key === 'q') {
-        this.updatePosition(CONSTANTS.rotateCounterClockwise);
-      } else if (e.key === 'e') {
-        this.updatePosition(CONSTANTS.rotateClockwise);
-      }
-    });
-  }
-
-  makeNewPiece() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-    this.currentPiece = new Piece();
-    this.startPiece();
-  }
-
-  startPiece() {
-    let callback = function() {
-      this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
-    };
-    this.interval = setInterval(callback.bind(this), CONSTANTS.gameSpeed);
-  }
 
   static buildRow () {
     let row = [];
-    for(let j = 0; j < 14; j += 1 ){
+    for(let j = 0; j < CONSTANTS.gameWidth; j += 1 ){
       if (j === 0 || j === 1 ) {
         row.push({filled: 'left' });
-      } else if (j === 12 || j === 13) {
+      } else if (j === CONSTANTS.gameWidth - 2 || j === CONSTANTS.gameWidth - 1) {
         row.push({filled: 'right'});
       }  else {
         row.push({});
@@ -185,9 +205,9 @@ class Game {
 
   static makeGrid() {
     let grid = [];
-    for(let i = 0; i < 22; i += 1){
-      if (i === 21) {
-        grid.push(Array(14).fill({filled: 'bottom'}));
+    for(let i = 0; i < 23; i += 1){
+      if (i === 22) {
+        grid.push(Array(CONSTANTS.gameWidth).fill({filled: 'bottom'}));
       } else {
         grid.push(Game.buildRow());
       }

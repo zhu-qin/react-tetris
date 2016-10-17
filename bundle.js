@@ -67,9 +67,12 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
 	// components
 
+
+	if (!localStorage.tetrisHighScore) {
+	  localStorage.tetrisHighScore = 0;
+	}
 
 	var Entry = function (_React$Component) {
 	  _inherits(Entry, _React$Component);
@@ -19809,6 +19812,14 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
+	var _left_panel = __webpack_require__(165);
+
+	var _left_panel2 = _interopRequireDefault(_left_panel);
+
+	var _right_panel = __webpack_require__(164);
+
+	var _right_panel2 = _interopRequireDefault(_right_panel);
+
 	var _game = __webpack_require__(160);
 
 	var _game2 = _interopRequireDefault(_game);
@@ -19836,6 +19847,12 @@
 	  }
 
 	  _createClass(View, [{
+	    key: 'makeNewGame',
+	    value: function makeNewGame() {
+	      this.state.game.removeListeners();
+	      this.setState({ game: new _game2.default(this) });
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var game = this.state.game;
@@ -19857,7 +19874,7 @@
 	        });
 	        return _react2.default.createElement(
 	          'div',
-	          { key: idx1, className: 'row' },
+	          { key: idx1, className: 'row row-index-' + idx1 },
 	          units
 	        );
 	      });
@@ -19865,11 +19882,21 @@
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'app-wrapper' },
-	        _react2.default.createElement('div', { className: 'score-board' }),
+	        _react2.default.createElement(
+	          'h1',
+	          { className: 'game-title' },
+	          "REACT TETRIS BY QIN ZHU"
+	        ),
 	        _react2.default.createElement(
 	          'div',
-	          { className: 'gameview' },
-	          rows
+	          { className: 'game-wrapper' },
+	          _react2.default.createElement(_left_panel2.default, { game: this.state.game, makeNewGame: this.makeNewGame.bind(this) }),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'gameview' },
+	            rows
+	          ),
+	          _react2.default.createElement(_right_panel2.default, null)
 	        )
 	      );
 	    }
@@ -19904,14 +19931,74 @@
 	  function Game(view) {
 	    _classCallCheck(this, Game);
 
+	    this.score = 0;
 	    this.view = view;
+	    this.running = false;
 	    this.grid = Game.makeGrid();
-	    this.currentPiece = undefined;
-	    this.makeNewPiece();
+	    this.nextPiece = new _piece2.default();
+	    this.currentPiece = new _piece2.default();
+	    this.speed = 500;
 	    this.addListeners();
 	  }
+	  // INIT
+
 
 	  _createClass(Game, [{
+	    key: 'makeNewPiece',
+	    value: function makeNewPiece() {
+	      this.currentPiece = this.nextPiece;
+	      this.nextPiece = new _piece2.default();
+	    }
+	  }, {
+	    key: 'stopGame',
+	    value: function stopGame() {
+	      if (this.interval) {
+	        clearInterval(this.interval);
+	      }
+	      this.running = false;
+	    }
+	  }, {
+	    key: 'startGame',
+	    value: function startGame() {
+	      var callback = function callback() {
+	        this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
+	      };
+	      this.interval = setInterval(callback.bind(this), this.speed);
+	      this.running = true;
+	    }
+	  }, {
+	    key: 'keyDownEvent',
+	    value: function keyDownEvent(e) {
+	      if (this.running) {
+	        if (e.key === 'a') {
+	          this.updatePosition(_constants2.default.translateLeft);
+	        } else if (e.key === 'd') {
+	          this.updatePosition(_constants2.default.translateRight);
+	        } else if (e.key === 's') {
+	          this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
+	        }
+	        if (e.key === 'q') {
+	          this.updatePosition(_constants2.default.rotateCounterClockwise);
+	        } else if (e.key === 'e') {
+	          this.updatePosition(_constants2.default.rotateClockwise);
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'addListeners',
+	    value: function addListeners() {
+	      this.listener = this.keyDownEvent.bind(this);
+	      document.addEventListener('keydown', this.listener);
+	    }
+	  }, {
+	    key: 'removeListeners',
+	    value: function removeListeners() {
+	      document.removeEventListener('keydown', this.listener);
+	    }
+
+	    // GAME LOGIC
+
+	  }, {
 	    key: 'rotate',
 	    value: function rotate(matrix) {
 	      var center = this.currentPiece.coords[1];
@@ -20009,7 +20096,7 @@
 	      var completedRows = [];
 	      for (var i = 20; i >= 0; i -= 1) {
 	        var emptySlots = void 0;
-	        for (var j = 2; j < 14; j += 1) {
+	        for (var j = 2; j < _constants2.default.gameWidth - 2; j += 1) {
 	          if (!this.grid[i][j].filled) {
 	            emptySlots = true;
 	          }
@@ -20040,54 +20127,18 @@
 	      });
 
 	      completedRows.forEach(function (el) {
+	        _this3.score += 100;
 	        _this3.grid.unshift(Game.buildRow());
 	      });
-	    }
-	  }, {
-	    key: 'addListeners',
-	    value: function addListeners() {
-	      var _this4 = this;
-
-	      document.addEventListener("keydown", function (e) {
-	        if (e.key === 'a') {
-	          _this4.updatePosition(_constants2.default.translateLeft);
-	        } else if (e.key === 'd') {
-	          _this4.updatePosition(_constants2.default.translateRight);
-	        } else if (e.key === 's') {
-	          _this4.updatePosition(_constants2.default.translateDown, _this4.moveDownCallback.bind(_this4));
-	        }
-	        if (e.key === 'q') {
-	          _this4.updatePosition(_constants2.default.rotateCounterClockwise);
-	        } else if (e.key === 'e') {
-	          _this4.updatePosition(_constants2.default.rotateClockwise);
-	        }
-	      });
-	    }
-	  }, {
-	    key: 'makeNewPiece',
-	    value: function makeNewPiece() {
-	      if (this.interval) {
-	        clearInterval(this.interval);
-	      }
-	      this.currentPiece = new _piece2.default();
-	      this.startPiece();
-	    }
-	  }, {
-	    key: 'startPiece',
-	    value: function startPiece() {
-	      var callback = function callback() {
-	        this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
-	      };
-	      this.interval = setInterval(callback.bind(this), _constants2.default.gameSpeed);
 	    }
 	  }], [{
 	    key: 'buildRow',
 	    value: function buildRow() {
 	      var row = [];
-	      for (var j = 0; j < 14; j += 1) {
+	      for (var j = 0; j < _constants2.default.gameWidth; j += 1) {
 	        if (j === 0 || j === 1) {
 	          row.push({ filled: 'left' });
-	        } else if (j === 12 || j === 13) {
+	        } else if (j === _constants2.default.gameWidth - 2 || j === _constants2.default.gameWidth - 1) {
 	          row.push({ filled: 'right' });
 	        } else {
 	          row.push({});
@@ -20099,9 +20150,9 @@
 	    key: 'makeGrid',
 	    value: function makeGrid() {
 	      var grid = [];
-	      for (var i = 0; i < 22; i += 1) {
-	        if (i === 21) {
-	          grid.push(Array(14).fill({ filled: 'bottom' }));
+	      for (var i = 0; i < 23; i += 1) {
+	        if (i === 22) {
+	          grid.push(Array(_constants2.default.gameWidth).fill({ filled: 'bottom' }));
 	        } else {
 	          grid.push(Game.buildRow());
 	        }
@@ -20163,16 +20214,25 @@
 
 	var CONSTANTS = {
 
-	  gameSpeed: 300,
+	  gameWidth: 14,
+
+	  gameSpeed: 1000,
 
 	  pieces: {
-	    0: { init: [[1, 5], [1, 6], [0, 5], [0, 6]] },
-	    1: { init: [[1, 4], [1, 5], [1, 6], [1, 7]] },
-	    2: { init: [[1, 5], [1, 6], [1, 7], [0, 6]] },
-	    3: { init: [[1, 5], [0, 6], [1, 6], [0, 7]] },
-	    4: { init: [[1, 5], [0, 5], [1, 6], [0, 4]] },
-	    5: { init: [[0, 5], [1, 5], [1, 6], [1, 7]] },
-	    6: { init: [[0, 7], [1, 7], [1, 6], [1, 5]] }
+	    // square piece
+	    0: { init: [[1, 6], [1, 7], [0, 6], [0, 7]] },
+	    // Line piece
+	    1: { init: [[1, 5], [1, 6], [1, 7], [1, 8]] },
+	    // T piece
+	    2: { init: [[1, 6], [1, 7], [1, 8], [0, 7]] },
+	    // Z piece
+	    3: { init: [[1, 6], [0, 7], [1, 7], [0, 8]] },
+	    // Z piece
+	    4: { init: [[1, 6], [0, 6], [1, 7], [0, 5]] },
+	    // L piece
+	    5: { init: [[0, 6], [1, 6], [1, 7], [1, 8]] },
+	    // L piece
+	    6: { init: [[0, 8], [1, 8], [1, 7], [1, 6]] }
 	  },
 
 	  colors: ["red", "blue", "orange", "teal", "purple", "green", "red"],
@@ -20188,6 +20248,204 @@
 	};
 
 	module.exports = CONSTANTS;
+
+/***/ },
+/* 163 */,
+/* 164 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RightPanel = function (_React$Component) {
+	  _inherits(RightPanel, _React$Component);
+
+	  function RightPanel(props) {
+	    _classCallCheck(this, RightPanel);
+
+	    return _possibleConstructorReturn(this, (RightPanel.__proto__ || Object.getPrototypeOf(RightPanel)).call(this, props));
+	  }
+
+	  _createClass(RightPanel, [{
+	    key: "render",
+	    value: function render() {
+	      return _react2.default.createElement(
+	        "div",
+	        { className: "right-panel" },
+	        _react2.default.createElement(
+	          "div",
+	          { className: "instructions" },
+	          "A - move left ",
+	          _react2.default.createElement("br", null),
+	          "D - move right ",
+	          _react2.default.createElement("br", null),
+	          "S - move down ",
+	          _react2.default.createElement("br", null),
+	          "Q - rotate counter-clockwise ",
+	          _react2.default.createElement("br", null),
+	          "E - rotate clockwise ",
+	          _react2.default.createElement("br", null)
+	        ),
+	        _react2.default.createElement("div", { className: "social-buttons" })
+	      );
+	    }
+	  }]);
+
+	  return RightPanel;
+	}(_react2.default.Component);
+
+	module.exports = RightPanel;
+
+/***/ },
+/* 165 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var LeftPanel = function (_React$Component) {
+	  _inherits(LeftPanel, _React$Component);
+
+	  function LeftPanel(props) {
+	    _classCallCheck(this, LeftPanel);
+
+	    return _possibleConstructorReturn(this, (LeftPanel.__proto__ || Object.getPrototypeOf(LeftPanel)).call(this, props));
+	  }
+
+	  _createClass(LeftPanel, [{
+	    key: "makeGrid",
+	    value: function makeGrid() {
+	      return Array(4).fill().map(function (el) {
+	        return Array(4).fill();
+	      });
+	    }
+	  }, {
+	    key: "changeGameSpeed",
+	    value: function changeGameSpeed(e) {
+	      this.props.game.speed = Math.abs(1000 - e.target.value);
+	      if (this.props.game.running) {
+	        this.props.game.stopGame();
+	        this.props.game.startGame();
+	      }
+	      this.forceUpdate();
+	    }
+	  }, {
+	    key: "toggleGame",
+	    value: function toggleGame(e) {
+	      if (this.props.game.running) {
+	        this.props.game.stopGame();
+	      } else {
+	        this.props.game.startGame();
+	      }
+	      this.forceUpdate();
+	    }
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      var _this2 = this;
+
+	      var grid = this.makeGrid();
+	      this.props.game.nextPiece.coords.forEach(function (coord) {
+	        grid[coord[0] + 1][coord[1] - 5] = _this2.props.game.nextPiece.fillColor;
+	      });
+
+	      var rows = grid.map(function (row, rowIdx) {
+	        var units = row.map(function (unit, unitIdx) {
+
+	          return _react2.default.createElement("div", { key: unitIdx, className: "display-block " + unit });
+	        });
+
+	        return _react2.default.createElement(
+	          "div",
+	          { key: rowIdx, className: "row" },
+	          units
+	        );
+	      });
+
+	      var gameState = "START";
+	      if (this.props.game.running) {
+	        gameState = "PAUSE";
+	      }
+
+	      return _react2.default.createElement(
+	        "div",
+	        { className: "left-panel" },
+	        _react2.default.createElement(
+	          "div",
+	          { className: "scores" },
+	          "High Score: ",
+	          _react2.default.createElement("br", null),
+	          localStorage.tetrisHighScore,
+	          _react2.default.createElement("br", null),
+	          "Current Score:",
+	          _react2.default.createElement("br", null),
+	          this.props.game.score
+	        ),
+	        _react2.default.createElement(
+	          "div",
+	          { className: "nextpiece-display" },
+	          "Next Piece:",
+	          _react2.default.createElement(
+	            "div",
+	            { className: "nextpiece-display-block" },
+	            rows
+	          )
+	        ),
+	        _react2.default.createElement(
+	          "div",
+	          { className: "game-buttons-wrapper" },
+	          _react2.default.createElement(
+	            "label",
+	            null,
+	            "Speed: ",
+	            1000 - this.props.game.speed,
+	            _react2.default.createElement("input", { className: "slide-bar", onChange: this.changeGameSpeed.bind(this), value: 1000 - this.props.game.speed, type: "range", min: "1", max: "1000" })
+	          ),
+	          _react2.default.createElement(
+	            "div",
+	            { className: "game-buttons " + gameState, onClick: this.toggleGame.bind(this) },
+	            gameState
+	          ),
+	          _react2.default.createElement(
+	            "div",
+	            { className: "game-buttons", onClick: this.props.makeNewGame },
+	            "RESET"
+	          )
+	        )
+	      );
+	    }
+	  }]);
+
+	  return LeftPanel;
+	}(_react2.default.Component);
+
+	module.exports = LeftPanel;
 
 /***/ }
 /******/ ]);

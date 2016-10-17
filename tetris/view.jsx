@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import LeftPanel from './left_panel';
+import RightPanel from './right_panel';
 import Game from './game';
 
 class View extends React.Component {
@@ -8,6 +10,11 @@ class View extends React.Component {
     this.state = {
       game: new Game(this)
     };
+  }
+
+  makeNewGame(){
+    this.state.game.removeListeners();
+    this.setState({game: new Game(this)});
   }
 
   render() {
@@ -32,7 +39,7 @@ class View extends React.Component {
         );
       });
       return (
-        <div key={idx1} className="row">
+        <div key={idx1} className={`row row-index-${idx1}`}>
           {units}
         </div>
       );
@@ -40,11 +47,15 @@ class View extends React.Component {
 
     return (
       <div className="app-wrapper">
-        <div className="score-board">
-
-        </div>
-        <div className="gameview">
-          {rows}
+        <h1 className="game-title">
+          {"REACT TETRIS BY QIN ZHU"}
+        </h1>
+        <div className="game-wrapper">
+          <LeftPanel game={this.state.game} makeNewGame={this.makeNewGame.bind(this)}/>
+          <div className="gameview">
+            {rows}
+          </div>
+          <RightPanel />
         </div>
       </div>
     );
