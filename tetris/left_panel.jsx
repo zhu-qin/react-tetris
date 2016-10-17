@@ -30,27 +30,43 @@ class LeftPanel extends React.Component {
   }
 
   render() {
-    let grid = this.makeGrid();
-    this.props.game.nextPiece.coords.forEach((coord) => {
-      grid[coord[0] + 1][coord[1] - 5] = this.props.game.nextPiece.fillColor;
-    });
+    let sideDisplayNext;
+    if (!this.props.game.gameLost){
+      let grid = this.makeGrid();
+      this.props.game.nextPiece.coords.forEach((coord) => {
+        grid[coord[0] + 1][coord[1] - 5] = this.props.game.nextPiece.fillColor;
+      });
 
-    let rows = grid.map((row, rowIdx) => {
-      let units = row.map((unit, unitIdx) => {
+      let rows = grid.map((row, rowIdx) => {
+        let units = row.map((unit, unitIdx) => {
+
+          return (
+            <div key={unitIdx} className={`display-block ${unit}`}>
+
+            </div>
+          );
+        });
 
         return (
-          <div key={unitIdx} className={`display-block ${unit}`}>
-
+          <div key={rowIdx} className="row">
+            {units}
           </div>
         );
       });
 
-      return (
-        <div key={rowIdx} className="row">
-          {units}
-        </div>
-      );
-    });
+      sideDisplayNext = <div className="nextpiece-display">
+                          Next Piece:
+                          <div className="nextpiece-display-block">
+                            {rows}
+                          </div>
+                        </div>;
+    } else {
+      sideDisplayNext = <div className="nextpiece-display">
+                          <div className="nextpiece-display-gameover">
+                            GAME OVER
+                          </div>
+                        </div>;
+    }
 
     let gameState = "START";
     if (this.props.game.running) {
@@ -60,20 +76,12 @@ class LeftPanel extends React.Component {
     return (
       <div className="left-panel">
         <div className="scores">
-
             High Score: <br></br>
             {localStorage.tetrisHighScore}<br></br>
-
             Current Score:<br></br>
             {this.props.game.score}
-
         </div>
-        <div className="nextpiece-display">
-          Next Piece:
-          <div className="nextpiece-display-block">
-            {rows}
-          </div>
-        </div>
+        {sideDisplayNext}
         <div className="game-buttons-wrapper">
           <label>Speed: {1000 - this.props.game.speed}
             <input className="slide-bar" onChange={this.changeGameSpeed.bind(this)} value={1000 - this.props.game.speed} type="range" min="1" max="1000">

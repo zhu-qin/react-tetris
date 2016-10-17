@@ -29,6 +29,7 @@ class View extends React.Component {
             currentPieceClass = game.currentPiece.fillColor;
           }
         });
+
         let additionClass;
         if (unit.filled) {
           additionClass = unit.filled;

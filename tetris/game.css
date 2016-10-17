@@ -48,9 +48,10 @@ body {
 
 /*left - panel*/
 .nextpiece-display {
+  height: 120px;
   padding-top: 10px;
   text-align: center;
-  margin: 10px 20px;
+  margin-bottom: 20px;
   border: 1px solid black;
   background-color: rgba(63, 191, 157, 0.3);
 }
@@ -58,6 +59,11 @@ body {
 .nextpiece-display-block {
   width: 115px;
   margin: auto;
+}
+
+.nextpiece-display-gameover {
+  font-size: 45px;
+  text-align: center;
 }
 
 .scores {

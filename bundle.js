@@ -19866,6 +19866,7 @@
 	              currentPieceClass = game.currentPiece.fillColor;
 	            }
 	          });
+
 	          var additionClass = void 0;
 	          if (unit.filled) {
 	            additionClass = unit.filled;
@@ -19934,6 +19935,7 @@
 	    this.score = 0;
 	    this.view = view;
 	    this.running = false;
+	    this.gameLost = false;
 	    this.grid = Game.makeGrid();
 	    this.nextPiece = new _piece2.default();
 	    this.currentPiece = new _piece2.default();
@@ -20077,6 +20079,8 @@
 	      this.checkCompleteRows();
 	      if (this.checkGameOver()) {
 	        clearInterval(this.interval);
+	        this.gameLost = true;
+	        this.view.forceUpdate();
 	      } else {
 	        this.makeNewPiece();
 	      }
@@ -20128,6 +20132,9 @@
 
 	      completedRows.forEach(function (el) {
 	        _this3.score += 100;
+	        if (_this3.score > localStorage.tetrisHighScore) {
+	          localStorage.tetrisHighScore = _this3.score;
+	        }
 	        _this3.grid.unshift(Game.buildRow());
 	      });
 	    }
@@ -20388,23 +20395,49 @@
 	    value: function render() {
 	      var _this2 = this;
 
-	      var grid = this.makeGrid();
-	      this.props.game.nextPiece.coords.forEach(function (coord) {
-	        grid[coord[0] + 1][coord[1] - 5] = _this2.props.game.nextPiece.fillColor;
-	      });
+	      var sideDisplayNext = void 0;
+	      if (!this.props.game.gameLost) {
+	        (function () {
+	          var grid = _this2.makeGrid();
+	          _this2.props.game.nextPiece.coords.forEach(function (coord) {
+	            grid[coord[0] + 1][coord[1] - 5] = _this2.props.game.nextPiece.fillColor;
+	          });
 
-	      var rows = grid.map(function (row, rowIdx) {
-	        var units = row.map(function (unit, unitIdx) {
+	          var rows = grid.map(function (row, rowIdx) {
+	            var units = row.map(function (unit, unitIdx) {
 
-	          return _react2.default.createElement("div", { key: unitIdx, className: "display-block " + unit });
-	        });
+	              return _react2.default.createElement("div", { key: unitIdx, className: "display-block " + unit });
+	            });
 
-	        return _react2.default.createElement(
+	            return _react2.default.createElement(
+	              "div",
+	              { key: rowIdx, className: "row" },
+	              units
+	            );
+	          });
+
+	          sideDisplayNext = _react2.default.createElement(
+	            "div",
+	            { className: "nextpiece-display" },
+	            "Next Piece:",
+	            _react2.default.createElement(
+	              "div",
+	              { className: "nextpiece-display-block" },
+	              rows
+	            )
+	          );
+	        })();
+	      } else {
+	        sideDisplayNext = _react2.default.createElement(
 	          "div",
-	          { key: rowIdx, className: "row" },
-	          units
+	          { className: "nextpiece-display" },
+	          _react2.default.createElement(
+	            "div",
+	            { className: "nextpiece-display-gameover" },
+	            "GAME OVER"
+	          )
 	        );
-	      });
+	      }
 
 	      var gameState = "START";
 	      if (this.props.game.running) {
@@ -20425,16 +20458,7 @@
 	          _react2.default.createElement("br", null),
 	          this.props.game.score
 	        ),
-	        _react2.default.createElement(
-	          "div",
-	          { className: "nextpiece-display" },
-	          "Next Piece:",
-	          _react2.default.createElement(
-	            "div",
-	            { className: "nextpiece-display-block" },
-	            rows
-	          )
-	        ),
+	        sideDisplayNext,
 	        _react2.default.createElement(
 	          "div",
 	          { className: "game-buttons-wrapper" },

@@ -6,6 +6,7 @@ class Game {
     this.score = 0;
     this.view = view;
     this.running = false;
+    this.gameLost = false;
     this.grid = Game.makeGrid();
     this.nextPiece = new Piece();
     this.currentPiece = new Piece();
@@ -137,6 +138,8 @@ class Game {
     this.checkCompleteRows();
     if (this.checkGameOver()) {
       clearInterval(this.interval);
+      this.gameLost = true;
+      this.view.forceUpdate();
     } else {
       this.makeNewPiece();
     }
@@ -184,6 +187,9 @@ class Game {
 
     completedRows.forEach((el) => {
       this.score += 100;
+      if (this.score > localStorage.tetrisHighScore) {
+        localStorage.tetrisHighScore = this.score;
+      }
       this.grid.unshift(Game.buildRow());
     });
   }
