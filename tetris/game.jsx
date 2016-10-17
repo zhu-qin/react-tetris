@@ -152,7 +152,7 @@ class Game {
 
   checkCompleteRows(){
     let completedRows = [];
-    for (let i = 20; i >= 0; i -= 1) {
+    for (let i = 21; i >= 0; i -= 1) {
       let emptySlots;
       for(let j = 2; j < CONSTANTS.gameWidth - 2; j += 1) {
         if (!this.grid[i][j].filled) {

@@ -16,6 +16,9 @@ class RightPanel extends React.Component {
           E - rotate clockwise <br></br>
         </div>
         <div className="social-buttons">
+          <a href="https://github.com/zhu-qin/react-tetris" target="_blank" className="game-buttons">Github</a>
+          <a href="http://www.linkedin.com/in/qin-zhu" target="_blank" className="game-buttons">LinkedIn</a>
+          <a href="http://qin-zhu.com/assets/docs/resume.pdf" target="_blank" className="game-buttons">Resume</a>
         </div>
       </div>
     );

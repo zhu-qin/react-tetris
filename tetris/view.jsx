@@ -47,9 +47,7 @@ class View extends React.Component {
 
     return (
       <div className="app-wrapper">
-        <h1 className="game-title">
-          {"REACT TETRIS BY QIN ZHU"}
-        </h1>
+        <a href="http://qin-zhu.com" target="_blank" className="game-title">{"REACT TETRIS BY QIN ZHU"}</a>
         <div className="game-wrapper">
           <LeftPanel game={this.state.game} makeNewGame={this.makeNewGame.bind(this)}/>
           <div className="gameview">

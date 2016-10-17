@@ -1,17 +1,18 @@
-* {
+div, a{
   border-radius: 2px;
   background: transparent;
   color: rgb(231, 236, 237);
   font: inherit;
   font-family: 'Electrolize', sans-serif;
+  text-decoration: none;
   box-sizing: inherit;
-  list-style: none;
   letter-spacing: inherit;
 }
 
 body {
   background-image: url('images/background.jpg');
 }
+
 #root {
   letter-spacing: 3px;
   width: 100%;
@@ -29,6 +30,8 @@ body {
 }
 
 .game-title {
+  display: block;
+  padding: 20px;
   font-size: 40px;
   text-align: center;
 }
@@ -39,7 +42,7 @@ body {
 
 .left-panel, .right-panel{
   width: 300px;
-  /*background-color: rgba(144, 135, 210, 0.3);*/
+  padding: 20px;
   border: 1px solid black;
 }
 
@@ -63,13 +66,13 @@ body {
 }
 
 .game-buttons-wrapper {
-  margin: 10px 20px;
   border: none;
 }
 
 .game-buttons {
+  margin-top: 30px;
+  display: block;
   background-color: rgb(58, 119, 61);
-  margin: 20px 0;
   height: 80px;
   width: 100%;
   text-align: center;

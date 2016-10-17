@@ -19883,8 +19883,8 @@
 	        'div',
 	        { className: 'app-wrapper' },
 	        _react2.default.createElement(
-	          'h1',
-	          { className: 'game-title' },
+	          'a',
+	          { href: 'http://qin-zhu.com', target: '_blank', className: 'game-title' },
 	          "REACT TETRIS BY QIN ZHU"
 	        ),
 	        _react2.default.createElement(
@@ -20094,7 +20094,7 @@
 	    key: 'checkCompleteRows',
 	    value: function checkCompleteRows() {
 	      var completedRows = [];
-	      for (var i = 20; i >= 0; i -= 1) {
+	      for (var i = 21; i >= 0; i -= 1) {
 	        var emptySlots = void 0;
 	        for (var j = 2; j < _constants2.default.gameWidth - 2; j += 1) {
 	          if (!this.grid[i][j].filled) {
@@ -20299,7 +20299,25 @@
 	          "E - rotate clockwise ",
 	          _react2.default.createElement("br", null)
 	        ),
-	        _react2.default.createElement("div", { className: "social-buttons" })
+	        _react2.default.createElement(
+	          "div",
+	          { className: "social-buttons" },
+	          _react2.default.createElement(
+	            "a",
+	            { href: "https://github.com/zhu-qin/react-tetris", target: "_blank", className: "game-buttons" },
+	            "Github"
+	          ),
+	          _react2.default.createElement(
+	            "a",
+	            { href: "http://www.linkedin.com/in/qin-zhu", target: "_blank", className: "game-buttons" },
+	            "LinkedIn"
+	          ),
+	          _react2.default.createElement(
+	            "a",
+	            { href: "http://qin-zhu.com/assets/docs/resume.pdf", target: "_blank", className: "game-buttons" },
+	            "Resume"
+	          )
+	        )
 	      );
 	    }
 	  }]);
