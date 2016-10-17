@@ -134,6 +134,7 @@ class Game {
   moveDownCallback(){
     this.currentPiece.coords.forEach((coord) => {
       this.grid[coord[0]][coord[1]].filled = this.currentPiece.fillColor;
+      this.grid[coord[0]].fillCount += 1;
     });
     this.checkCompleteRows();
     if (this.checkGameOver()) {
@@ -156,14 +157,7 @@ class Game {
   checkCompleteRows(){
     let completedRows = [];
     for (let i = 21; i >= 0; i -= 1) {
-      let emptySlots;
-      for(let j = 2; j < CONSTANTS.gameWidth - 2; j += 1) {
-        if (!this.grid[i][j].filled) {
-          emptySlots = true;
-        }
-      }
-
-      if(!emptySlots){
+      if (this.grid[i].fillCount === CONSTANTS.gameWidth){
         completedRows.push(i);
       }
     }
@@ -171,7 +165,6 @@ class Game {
     if (completedRows.length > 0) {
       this.deleteFullRows(completedRows);
     }
-
   }
 
   deleteFullRows(completedRows) {
@@ -200,8 +193,14 @@ class Game {
     for(let j = 0; j < CONSTANTS.gameWidth; j += 1 ){
       if (j === 0 || j === 1 ) {
         row.push({filled: 'left' });
+        if (!row.fillCount) {
+          row.fillCount = 1;
+        } else {
+          row.fillCount += 1;
+        }
       } else if (j === CONSTANTS.gameWidth - 2 || j === CONSTANTS.gameWidth - 1) {
         row.push({filled: 'right'});
+        row.fillCount += 1;
       }  else {
         row.push({});
       }

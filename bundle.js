@@ -20075,6 +20075,7 @@
 
 	      this.currentPiece.coords.forEach(function (coord) {
 	        _this2.grid[coord[0]][coord[1]].filled = _this2.currentPiece.fillColor;
+	        _this2.grid[coord[0]].fillCount += 1;
 	      });
 	      this.checkCompleteRows();
 	      if (this.checkGameOver()) {
@@ -20099,14 +20100,7 @@
 	    value: function checkCompleteRows() {
 	      var completedRows = [];
 	      for (var i = 21; i >= 0; i -= 1) {
-	        var emptySlots = void 0;
-	        for (var j = 2; j < _constants2.default.gameWidth - 2; j += 1) {
-	          if (!this.grid[i][j].filled) {
-	            emptySlots = true;
-	          }
-	        }
-
-	        if (!emptySlots) {
+	        if (this.grid[i].fillCount === _constants2.default.gameWidth) {
 	          completedRows.push(i);
 	        }
 	      }
@@ -20145,8 +20139,14 @@
 	      for (var j = 0; j < _constants2.default.gameWidth; j += 1) {
 	        if (j === 0 || j === 1) {
 	          row.push({ filled: 'left' });
+	          if (!row.fillCount) {
+	            row.fillCount = 1;
+	          } else {
+	            row.fillCount += 1;
+	          }
 	        } else if (j === _constants2.default.gameWidth - 2 || j === _constants2.default.gameWidth - 1) {
 	          row.push({ filled: 'right' });
+	          row.fillCount += 1;
 	        } else {
 	          row.push({});
 	        }
