@@ -7,11 +7,12 @@ class Game {
     this.view = view;
     this.running = false;
     this.gameLost = false;
-    this.grid = Game.makeGrid();
+    this.grid = [];
     this.nextPiece = new Piece();
     this.currentPiece = new Piece();
     this.speed = 500;
     this.addListeners();
+    this.makeGrid();
   }
   // INIT
   makeNewPiece() {
@@ -35,7 +36,7 @@ class Game {
   }
 
   keyDownEvent(e) {
-    if (this.running) {
+    if (this.running && this.currentPiece.coords[1][0] > 1) {
       if (e.key === 'a') {
         this.updatePosition(CONSTANTS.translateLeft);
       } else if (e.key === 'd') {
@@ -116,6 +117,7 @@ class Game {
     } else {
       temp = this.translate(delta);
     }
+
     let checkBorder = this.checkValid(temp);
     if (!checkBorder) {
       this.currentPiece.coords = temp;
@@ -148,7 +150,7 @@ class Game {
   }
 
   checkGameOver() {
-    for (let i = 2; i < 11; i += 1) {
+    for (let i = 2; i < CONSTANTS.gameWidth - 2; i += 1) {
       if (this.grid[0][i].filled) {
         return true;
       }
@@ -157,7 +159,7 @@ class Game {
 
   checkCompleteRows(){
     let completedRows = [];
-    for (let i = 21; i >= 0; i -= 1) {
+    for (let i = 21; i > 0; i -= 1) {
       if (this.grid[i].fillCount === CONSTANTS.gameWidth){
         completedRows.push(i);
       }
@@ -172,53 +174,44 @@ class Game {
     completedRows.forEach((row) => {
       delete this.grid[row];
     });
-
     this.grid = this.grid.filter((row) => {
       if (row) {
         return row;
       }
     });
 
-    completedRows.forEach((el) => {
-      this.score += 100;
-      if (this.score > localStorage.tetrisHighScore) {
-        localStorage.tetrisHighScore = this.score;
-      }
-      this.grid.unshift(Game.buildRow());
-    });
+    this.score += 100*completedRows.length;
+    if (this.score > localStorage.tetrisHighScore) {
+      localStorage.tetrisHighScore = this.score;
+    }
+    this.buildRow();
   }
 
 
-  static buildRow () {
-    let row = [];
-    for(let j = 0; j < CONSTANTS.gameWidth; j += 1 ){
-      if (j === 0 || j === 1 ) {
-        row.push({filled: 'left' });
-        if (!row.fillCount) {
-          row.fillCount = 1;
-        } else {
+  buildRow () {
+    let i = this.grid.length;
+    while (i < 23) {
+      let row = [];
+      row.fillCount = 0;
+      for(let j = 0; j < CONSTANTS.gameWidth; j += 1 ){
+        if (j === 0 || j === 1 ) {
+          row.push({filled: 'left' });
           row.fillCount += 1;
+        } else if (j === CONSTANTS.gameWidth - 2 || j === CONSTANTS.gameWidth - 1) {
+          row.push({filled: 'right'});
+          row.fillCount += 1;
+        }  else {
+          row.push({});
         }
-      } else if (j === CONSTANTS.gameWidth - 2 || j === CONSTANTS.gameWidth - 1) {
-        row.push({filled: 'right'});
-        row.fillCount += 1;
-      }  else {
-        row.push({});
       }
+      this.grid.unshift(row);
+      i += 1;
     }
-    return row;
   }
 
-  static makeGrid() {
-    let grid = [];
-    for(let i = 0; i < 23; i += 1){
-      if (i === 22) {
-        grid.push(Array(CONSTANTS.gameWidth).fill({filled: 'bottom'}));
-      } else {
-        grid.push(Game.buildRow());
-      }
-    }
-    return grid;
+  makeGrid() {
+    this.grid.push(Array(CONSTANTS.gameWidth).fill({filled: 'bottom'}));
+    this.buildRow();
   }
 }
 

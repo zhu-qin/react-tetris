@@ -19936,11 +19936,12 @@
 	    this.view = view;
 	    this.running = false;
 	    this.gameLost = false;
-	    this.grid = Game.makeGrid();
+	    this.grid = [];
 	    this.nextPiece = new _piece2.default();
 	    this.currentPiece = new _piece2.default();
 	    this.speed = 500;
 	    this.addListeners();
+	    this.makeGrid();
 	  }
 	  // INIT
 
@@ -19971,7 +19972,7 @@
 	  }, {
 	    key: 'keyDownEvent',
 	    value: function keyDownEvent(e) {
-	      if (this.running) {
+	      if (this.running && this.currentPiece.coords[1][0] > 1) {
 	        if (e.key === 'a') {
 	          this.updatePosition(_constants2.default.translateLeft);
 	        } else if (e.key === 'd') {
@@ -20054,6 +20055,7 @@
 	      } else {
 	        temp = this.translate(delta);
 	      }
+
 	      var checkBorder = this.checkValid(temp);
 	      if (!checkBorder) {
 	        this.currentPiece.coords = temp;
@@ -20090,7 +20092,7 @@
 	  }, {
 	    key: 'checkGameOver',
 	    value: function checkGameOver() {
-	      for (var i = 2; i < 11; i += 1) {
+	      for (var i = 2; i < _constants2.default.gameWidth - 2; i += 1) {
 	        if (this.grid[0][i].filled) {
 	          return true;
 	        }
@@ -20100,7 +20102,7 @@
 	    key: 'checkCompleteRows',
 	    value: function checkCompleteRows() {
 	      var completedRows = [];
-	      for (var i = 21; i >= 0; i -= 1) {
+	      for (var i = 21; i > 0; i -= 1) {
 	        if (this.grid[i].fillCount === _constants2.default.gameWidth) {
 	          completedRows.push(i);
 	        }
@@ -20118,54 +20120,45 @@
 	      completedRows.forEach(function (row) {
 	        delete _this3.grid[row];
 	      });
-
 	      this.grid = this.grid.filter(function (row) {
 	        if (row) {
 	          return row;
 	        }
 	      });
 
-	      completedRows.forEach(function (el) {
-	        _this3.score += 100;
-	        if (_this3.score > localStorage.tetrisHighScore) {
-	          localStorage.tetrisHighScore = _this3.score;
-	        }
-	        _this3.grid.unshift(Game.buildRow());
-	      });
+	      this.score += 100 * completedRows.length;
+	      if (this.score > localStorage.tetrisHighScore) {
+	        localStorage.tetrisHighScore = this.score;
+	      }
+	      this.buildRow();
 	    }
-	  }], [{
+	  }, {
 	    key: 'buildRow',
 	    value: function buildRow() {
-	      var row = [];
-	      for (var j = 0; j < _constants2.default.gameWidth; j += 1) {
-	        if (j === 0 || j === 1) {
-	          row.push({ filled: 'left' });
-	          if (!row.fillCount) {
-	            row.fillCount = 1;
-	          } else {
+	      var i = this.grid.length;
+	      while (i < 23) {
+	        var row = [];
+	        row.fillCount = 0;
+	        for (var j = 0; j < _constants2.default.gameWidth; j += 1) {
+	          if (j === 0 || j === 1) {
+	            row.push({ filled: 'left' });
 	            row.fillCount += 1;
+	          } else if (j === _constants2.default.gameWidth - 2 || j === _constants2.default.gameWidth - 1) {
+	            row.push({ filled: 'right' });
+	            row.fillCount += 1;
+	          } else {
+	            row.push({});
 	          }
-	        } else if (j === _constants2.default.gameWidth - 2 || j === _constants2.default.gameWidth - 1) {
-	          row.push({ filled: 'right' });
-	          row.fillCount += 1;
-	        } else {
-	          row.push({});
 	        }
+	        this.grid.unshift(row);
+	        i += 1;
 	      }
-	      return row;
 	    }
 	  }, {
 	    key: 'makeGrid',
 	    value: function makeGrid() {
-	      var grid = [];
-	      for (var i = 0; i < 23; i += 1) {
-	        if (i === 22) {
-	          grid.push(Array(_constants2.default.gameWidth).fill({ filled: 'bottom' }));
-	        } else {
-	          grid.push(Game.buildRow());
-	        }
-	      }
-	      return grid;
+	      this.grid.push(Array(_constants2.default.gameWidth).fill({ filled: 'bottom' }));
+	      this.buildRow();
 	    }
 	  }]);
 
@@ -20223,8 +20216,6 @@
 	var CONSTANTS = {
 
 	  gameWidth: 14,
-
-	  gameSpeed: 1000,
 
 	  pieces: {
 	    // square piece
@@ -20374,10 +20365,11 @@
 	  }, {
 	    key: "changeGameSpeed",
 	    value: function changeGameSpeed(e) {
-	      this.props.game.speed = Math.abs(1000 - e.target.value);
-	      if (this.props.game.running) {
-	        this.props.game.stopGame();
-	        this.props.game.startGame();
+	      var game = this.props.game;
+	      game.speed = Math.abs(1000 - e.target.value);
+	      if (game.running) {
+	        game.stopGame();
+	        game.startGame();
 	      }
 	      this.forceUpdate();
 	    }

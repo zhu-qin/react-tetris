@@ -12,10 +12,11 @@ class LeftPanel extends React.Component {
   }
 
   changeGameSpeed(e) {
-    this.props.game.speed = Math.abs(1000 - e.target.value);
-    if (this.props.game.running) {
-      this.props.game.stopGame();
-      this.props.game.startGame();
+    let game = this.props.game;
+    game.speed = Math.abs(1000 - e.target.value);
+    if (game.running) {
+      game.stopGame();
+      game.startGame();
     }
     this.forceUpdate();
   }

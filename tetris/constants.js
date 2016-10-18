@@ -1,8 +1,6 @@
 const CONSTANTS = {
 
-  gameWidth:14,
-
-  gameSpeed: 1000,
+  gameWidth: 14,
 
   pieces: {
     // square piece
