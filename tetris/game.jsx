@@ -36,7 +36,7 @@ class Game {
   }
 
   keyDownEvent(e) {
-    if (this.running && this.currentPiece.coords[1][0] > 1) {
+    if (this.running) {
       if (e.key === 'a') {
         this.updatePosition(CONSTANTS.translateLeft);
       } else if (e.key === 'd') {
@@ -44,9 +44,9 @@ class Game {
       } else if (e.key === 's') {
         this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
       }
-      if (e.key === 'q') {
+      if (e.key === 'q' && this.currentPiece.coords[1][0] > 1) {
         this.updatePosition(CONSTANTS.rotateCounterClockwise);
-      } else if (e.key === 'e') {
+      } else if (e.key === 'e' && this.currentPiece.coords[1][0] > 1) {
         this.updatePosition(CONSTANTS.rotateClockwise);
       }
     }

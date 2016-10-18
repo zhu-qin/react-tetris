@@ -19972,7 +19972,7 @@
 	  }, {
 	    key: 'keyDownEvent',
 	    value: function keyDownEvent(e) {
-	      if (this.running && this.currentPiece.coords[1][0] > 1) {
+	      if (this.running) {
 	        if (e.key === 'a') {
 	          this.updatePosition(_constants2.default.translateLeft);
 	        } else if (e.key === 'd') {
@@ -19980,9 +19980,9 @@
 	        } else if (e.key === 's') {
 	          this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
 	        }
-	        if (e.key === 'q') {
+	        if (e.key === 'q' && this.currentPiece.coords[1][0] > 1) {
 	          this.updatePosition(_constants2.default.rotateCounterClockwise);
-	        } else if (e.key === 'e') {
+	        } else if (e.key === 'e' && this.currentPiece.coords[1][0] > 1) {
 	          this.updatePosition(_constants2.default.rotateClockwise);
 	        }
 	      }
