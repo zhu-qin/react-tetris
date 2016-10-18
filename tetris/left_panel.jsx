@@ -7,7 +7,7 @@ class LeftPanel extends React.Component {
 
   makeGrid() {
     return Array(4).fill().map((el) => {
-      return Array(4).fill();
+      return Array(4).fill({});
     });
   }
 
@@ -30,11 +30,12 @@ class LeftPanel extends React.Component {
   }
 
   render() {
+    let game = this.props.game;
     let sideDisplayNext;
-    if (!this.props.game.gameLost){
+    if (!game.gameLost){
       let grid = this.makeGrid();
-      this.props.game.nextPiece.coords.forEach((coord) => {
-        grid[coord[0] + 1][coord[1] - 5] = this.props.game.nextPiece.fillColor;
+      game.nextPiece.coords.forEach((coord) => {
+        grid[coord[0] + 1][coord[1] - 5] = game.nextPiece.fillColor;
       });
 
       let rows = grid.map((row, rowIdx) => {
@@ -42,7 +43,6 @@ class LeftPanel extends React.Component {
 
           return (
             <div key={unitIdx} className={`display-block ${unit}`}>
-
             </div>
           );
         });
@@ -69,22 +69,22 @@ class LeftPanel extends React.Component {
     }
 
     let gameState = "START";
-    if (this.props.game.running) {
+    if (game.running) {
       gameState = "PAUSE";
     }
 
     return (
       <div className="left-panel">
         <div className="scores">
-            High Score: <br></br>
-            {localStorage.tetrisHighScore}<br></br>
-            Current Score:<br></br>
-            {this.props.game.score}
+          High Score: <br></br>
+          {localStorage.tetrisHighScore}<br></br>
+          Current Score:<br></br>
+          {game.score}
         </div>
         {sideDisplayNext}
         <div className="game-buttons-wrapper">
-          <label>Speed: {1000 - this.props.game.speed}
-            <input className="slide-bar" onChange={this.changeGameSpeed.bind(this)} value={1000 - this.props.game.speed} type="range" min="1" max="1000">
+          <label>Speed: {1000 - game.speed}
+            <input className="slide-bar" onChange={this.changeGameSpeed.bind(this)} value={1000 - game.speed} type="range" min="1" max="1000">
             </input>
           </label>
           <div className={`game-buttons ${gameState}`} onClick={this.toggleGame.bind(this)}>

@@ -140,6 +140,7 @@ class Game {
     if (this.checkGameOver()) {
       clearInterval(this.interval);
       this.gameLost = true;
+      this.removeListeners();
       this.view.forceUpdate();
     } else {
       this.makeNewPiece();

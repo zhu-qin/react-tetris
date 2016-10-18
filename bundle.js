@@ -20081,6 +20081,7 @@
 	      if (this.checkGameOver()) {
 	        clearInterval(this.interval);
 	        this.gameLost = true;
+	        this.removeListeners();
 	        this.view.forceUpdate();
 	      } else {
 	        this.makeNewPiece();
@@ -20367,7 +20368,7 @@
 	    key: "makeGrid",
 	    value: function makeGrid() {
 	      return Array(4).fill().map(function (el) {
-	        return Array(4).fill();
+	        return Array(4).fill({});
 	      });
 	    }
 	  }, {
@@ -20395,12 +20396,13 @@
 	    value: function render() {
 	      var _this2 = this;
 
+	      var game = this.props.game;
 	      var sideDisplayNext = void 0;
-	      if (!this.props.game.gameLost) {
+	      if (!game.gameLost) {
 	        (function () {
 	          var grid = _this2.makeGrid();
-	          _this2.props.game.nextPiece.coords.forEach(function (coord) {
-	            grid[coord[0] + 1][coord[1] - 5] = _this2.props.game.nextPiece.fillColor;
+	          game.nextPiece.coords.forEach(function (coord) {
+	            grid[coord[0] + 1][coord[1] - 5] = game.nextPiece.fillColor;
 	          });
 
 	          var rows = grid.map(function (row, rowIdx) {
@@ -20440,7 +20442,7 @@
 	      }
 
 	      var gameState = "START";
-	      if (this.props.game.running) {
+	      if (game.running) {
 	        gameState = "PAUSE";
 	      }
 
@@ -20456,7 +20458,7 @@
 	          _react2.default.createElement("br", null),
 	          "Current Score:",
 	          _react2.default.createElement("br", null),
-	          this.props.game.score
+	          game.score
 	        ),
 	        sideDisplayNext,
 	        _react2.default.createElement(
@@ -20466,8 +20468,8 @@
 	            "label",
 	            null,
 	            "Speed: ",
-	            1000 - this.props.game.speed,
-	            _react2.default.createElement("input", { className: "slide-bar", onChange: this.changeGameSpeed.bind(this), value: 1000 - this.props.game.speed, type: "range", min: "1", max: "1000" })
+	            1000 - game.speed,
+	            _react2.default.createElement("input", { className: "slide-bar", onChange: this.changeGameSpeed.bind(this), value: 1000 - game.speed, type: "range", min: "1", max: "1000" })
 	          ),
 	          _react2.default.createElement(
 	            "div",

@@ -119,10 +119,6 @@ body {
   margin: 1px;
 }
 
-.row-index-0, .row-index-1{
-  display: none;
-}
-
 .blue {
   background-color: rgb(37, 70, 131);
 }
@@ -145,6 +141,10 @@ body {
 
 .green {
   background-color: rgb(37, 131, 55);
+}
+
+.row-index-0, .row-index-1{
+  display: none;
 }
 
 .bottom, .left, .right {
