@@ -54,7 +54,7 @@ class View extends React.Component {
           <div className="gameview">
             {rows}
           </div>
-          <RightPanel />
+          <RightPanel game={this.state.game}/>
         </div>
       </div>
     );

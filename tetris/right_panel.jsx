@@ -1,5 +1,7 @@
 import React from 'react';
 
+import ControlButton from './control_button';
+
 class RightPanel extends React.Component {
   constructor(props) {
     super(props);
@@ -19,6 +21,10 @@ class RightPanel extends React.Component {
           <a href="https://github.com/zhu-qin/react-tetris" target="_blank" className="game-buttons">Github</a>
           <a href="http://www.linkedin.com/in/qin-zhu" target="_blank" className="game-buttons">LinkedIn</a>
           <a href="http://qin-zhu.com/assets/docs/resume.pdf" target="_blank" className="game-buttons">Resume</a>
+        </div>
+        <div className="game-control-buttons">
+          <ControlButton control={"rotateL"} game={this.props.game}/>
+          <ControlButton control={"rotateR"} game={this.props.game}/>
         </div>
       </div>
     );

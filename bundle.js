@@ -19812,15 +19812,15 @@
 
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 
-	var _left_panel = __webpack_require__(165);
+	var _left_panel = __webpack_require__(160);
 
 	var _left_panel2 = _interopRequireDefault(_left_panel);
 
-	var _right_panel = __webpack_require__(164);
+	var _right_panel = __webpack_require__(161);
 
 	var _right_panel2 = _interopRequireDefault(_right_panel);
 
-	var _game = __webpack_require__(160);
+	var _game = __webpack_require__(162);
 
 	var _game2 = _interopRequireDefault(_game);
 
@@ -19897,7 +19897,7 @@
 	            { className: 'gameview' },
 	            rows
 	          ),
-	          _react2.default.createElement(_right_panel2.default, null)
+	          _react2.default.createElement(_right_panel2.default, { game: this.state.game })
 	        )
 	      );
 	    }
@@ -19916,11 +19916,266 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _piece = __webpack_require__(161);
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _control_button = __webpack_require__(165);
+
+	var _control_button2 = _interopRequireDefault(_control_button);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var LeftPanel = function (_React$Component) {
+	  _inherits(LeftPanel, _React$Component);
+
+	  function LeftPanel(props) {
+	    _classCallCheck(this, LeftPanel);
+
+	    return _possibleConstructorReturn(this, (LeftPanel.__proto__ || Object.getPrototypeOf(LeftPanel)).call(this, props));
+	  }
+
+	  _createClass(LeftPanel, [{
+	    key: 'makeGrid',
+	    value: function makeGrid() {
+	      return Array(4).fill().map(function (el) {
+	        return Array(4).fill({});
+	      });
+	    }
+	  }, {
+	    key: 'changeGameSpeed',
+	    value: function changeGameSpeed(e) {
+	      var game = this.props.game;
+	      game.speed = Math.abs(1000 - e.target.value);
+	      if (game.running) {
+	        game.stopGame();
+	        game.startGame();
+	      }
+	      this.forceUpdate();
+	    }
+	  }, {
+	    key: 'toggleGame',
+	    value: function toggleGame(e) {
+	      if (this.props.game.running) {
+	        this.props.game.stopGame();
+	      } else {
+	        this.props.game.startGame();
+	      }
+	      this.forceUpdate();
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+
+	      var game = this.props.game;
+	      var sideDisplayNext = void 0;
+	      if (!game.gameLost) {
+	        (function () {
+	          var grid = _this2.makeGrid();
+	          game.nextPiece.coords.forEach(function (coord) {
+	            grid[coord[0] + 1][coord[1] - 5] = game.nextPiece.fillColor;
+	          });
+
+	          var rows = grid.map(function (row, rowIdx) {
+	            var units = row.map(function (unit, unitIdx) {
+
+	              return _react2.default.createElement('div', { key: unitIdx, className: 'display-block ' + unit });
+	            });
+
+	            return _react2.default.createElement(
+	              'div',
+	              { key: rowIdx, className: 'row' },
+	              units
+	            );
+	          });
+
+	          sideDisplayNext = _react2.default.createElement(
+	            'div',
+	            { className: 'nextpiece-display' },
+	            'Next Piece:',
+	            _react2.default.createElement(
+	              'div',
+	              { className: 'nextpiece-display-block' },
+	              rows
+	            )
+	          );
+	        })();
+	      } else {
+	        sideDisplayNext = _react2.default.createElement(
+	          'div',
+	          { className: 'nextpiece-display' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'nextpiece-display-gameover' },
+	            'GAME OVER'
+	          )
+	        );
+	      }
+
+	      var gameState = "START";
+	      if (game.running) {
+	        gameState = "PAUSE";
+	      }
+
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'left-panel' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'scores' },
+	          'High Score: ',
+	          _react2.default.createElement('br', null),
+	          localStorage.tetrisHighScore,
+	          _react2.default.createElement('br', null),
+	          'Current Score:',
+	          _react2.default.createElement('br', null),
+	          game.score
+	        ),
+	        sideDisplayNext,
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'game-buttons-wrapper' },
+	          _react2.default.createElement(
+	            'label',
+	            null,
+	            'Speed: ',
+	            1000 - game.speed,
+	            _react2.default.createElement('input', { className: 'slide-bar', onChange: this.changeGameSpeed.bind(this), value: 1000 - game.speed, type: 'range', min: '1', max: '1000' })
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'game-buttons ' + gameState, onClick: this.toggleGame.bind(this) },
+	            gameState
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'game-buttons', onClick: this.props.makeNewGame },
+	            'RESET'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'game-control-buttons' },
+	          _react2.default.createElement(_control_button2.default, { control: "left", game: this.props.game }),
+	          _react2.default.createElement(_control_button2.default, { control: "down", game: this.props.game }),
+	          _react2.default.createElement(_control_button2.default, { control: "right", game: this.props.game })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return LeftPanel;
+	}(_react2.default.Component);
+
+	module.exports = LeftPanel;
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _control_button = __webpack_require__(165);
+
+	var _control_button2 = _interopRequireDefault(_control_button);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var RightPanel = function (_React$Component) {
+	  _inherits(RightPanel, _React$Component);
+
+	  function RightPanel(props) {
+	    _classCallCheck(this, RightPanel);
+
+	    return _possibleConstructorReturn(this, (RightPanel.__proto__ || Object.getPrototypeOf(RightPanel)).call(this, props));
+	  }
+
+	  _createClass(RightPanel, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'right-panel' },
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'instructions' },
+	          'A - move left ',
+	          _react2.default.createElement('br', null),
+	          'D - move right ',
+	          _react2.default.createElement('br', null),
+	          'S - move down ',
+	          _react2.default.createElement('br', null),
+	          'Q - rotate counter-clockwise ',
+	          _react2.default.createElement('br', null),
+	          'E - rotate clockwise ',
+	          _react2.default.createElement('br', null)
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'social-buttons' },
+	          _react2.default.createElement(
+	            'a',
+	            { href: 'https://github.com/zhu-qin/react-tetris', target: '_blank', className: 'game-buttons' },
+	            'Github'
+	          ),
+	          _react2.default.createElement(
+	            'a',
+	            { href: 'http://www.linkedin.com/in/qin-zhu', target: '_blank', className: 'game-buttons' },
+	            'LinkedIn'
+	          ),
+	          _react2.default.createElement(
+	            'a',
+	            { href: 'http://qin-zhu.com/assets/docs/resume.pdf', target: '_blank', className: 'game-buttons' },
+	            'Resume'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'game-control-buttons' },
+	          _react2.default.createElement(_control_button2.default, { control: "rotateL", game: this.props.game }),
+	          _react2.default.createElement(_control_button2.default, { control: "rotateR", game: this.props.game })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return RightPanel;
+	}(_react2.default.Component);
+
+	module.exports = RightPanel;
+
+/***/ },
+/* 162 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _piece = __webpack_require__(163);
 
 	var _piece2 = _interopRequireDefault(_piece);
 
-	var _constants = __webpack_require__(162);
+	var _constants = __webpack_require__(164);
 
 	var _constants2 = _interopRequireDefault(_constants);
 
@@ -19971,18 +20226,19 @@
 	    }
 	  }, {
 	    key: 'keyDownEvent',
-	    value: function keyDownEvent(e) {
+	    value: function keyDownEvent(e, button) {
+
 	      if (this.running) {
-	        if (e.key === 'a') {
+	        if (e.key === 'a' || button === "left") {
 	          this.updatePosition(_constants2.default.translateLeft);
-	        } else if (e.key === 'd') {
+	        } else if (e.key === 'd' || button === "right") {
 	          this.updatePosition(_constants2.default.translateRight);
-	        } else if (e.key === 's') {
+	        } else if (e.key === 's' || button === "down") {
 	          this.updatePosition(_constants2.default.translateDown, this.moveDownCallback.bind(this));
 	        }
-	        if (e.key === 'q' && this.currentPiece.coords[1][0] > 1) {
+	        if ((e.key === 'q' || button === 'rotateL') && this.currentPiece.coords[1][0] > 1) {
 	          this.updatePosition(_constants2.default.rotateCounterClockwise);
-	        } else if (e.key === 'e' && this.currentPiece.coords[1][0] > 1) {
+	        } else if ((e.key === 'e' || button === 'rotateR') && this.currentPiece.coords[1][0] > 1) {
 	          this.updatePosition(_constants2.default.rotateClockwise);
 	        }
 	      }
@@ -20168,14 +20424,14 @@
 	module.exports = Game;
 
 /***/ },
-/* 161 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _constants = __webpack_require__(162);
+	var _constants = __webpack_require__(164);
 
 	var _constants2 = _interopRequireDefault(_constants);
 
@@ -20208,7 +20464,7 @@
 	module.exports = Piece;
 
 /***/ },
-/* 162 */
+/* 164 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -20249,88 +20505,10 @@
 	module.exports = CONSTANTS;
 
 /***/ },
-/* 163 */,
-/* 164 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var RightPanel = function (_React$Component) {
-	  _inherits(RightPanel, _React$Component);
-
-	  function RightPanel(props) {
-	    _classCallCheck(this, RightPanel);
-
-	    return _possibleConstructorReturn(this, (RightPanel.__proto__ || Object.getPrototypeOf(RightPanel)).call(this, props));
-	  }
-
-	  _createClass(RightPanel, [{
-	    key: "render",
-	    value: function render() {
-	      return _react2.default.createElement(
-	        "div",
-	        { className: "right-panel" },
-	        _react2.default.createElement(
-	          "div",
-	          { className: "instructions" },
-	          "A - move left ",
-	          _react2.default.createElement("br", null),
-	          "D - move right ",
-	          _react2.default.createElement("br", null),
-	          "S - move down ",
-	          _react2.default.createElement("br", null),
-	          "Q - rotate counter-clockwise ",
-	          _react2.default.createElement("br", null),
-	          "E - rotate clockwise ",
-	          _react2.default.createElement("br", null)
-	        ),
-	        _react2.default.createElement(
-	          "div",
-	          { className: "social-buttons" },
-	          _react2.default.createElement(
-	            "a",
-	            { href: "https://github.com/zhu-qin/react-tetris", target: "_blank", className: "game-buttons" },
-	            "Github"
-	          ),
-	          _react2.default.createElement(
-	            "a",
-	            { href: "http://www.linkedin.com/in/qin-zhu", target: "_blank", className: "game-buttons" },
-	            "LinkedIn"
-	          ),
-	          _react2.default.createElement(
-	            "a",
-	            { href: "http://qin-zhu.com/assets/docs/resume.pdf", target: "_blank", className: "game-buttons" },
-	            "Resume"
-	          )
-	        )
-	      );
-	    }
-	  }]);
-
-	  return RightPanel;
-	}(_react2.default.Component);
-
-	module.exports = RightPanel;
-
-/***/ },
 /* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -20346,142 +20524,35 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var LeftPanel = function (_React$Component) {
-	  _inherits(LeftPanel, _React$Component);
+	var ControlButton = function (_React$Component) {
+	  _inherits(ControlButton, _React$Component);
 
-	  function LeftPanel(props) {
-	    _classCallCheck(this, LeftPanel);
+	  function ControlButton(props) {
+	    _classCallCheck(this, ControlButton);
 
-	    return _possibleConstructorReturn(this, (LeftPanel.__proto__ || Object.getPrototypeOf(LeftPanel)).call(this, props));
+	    return _possibleConstructorReturn(this, (ControlButton.__proto__ || Object.getPrototypeOf(ControlButton)).call(this, props));
 	  }
 
-	  _createClass(LeftPanel, [{
-	    key: "makeGrid",
-	    value: function makeGrid() {
-	      return Array(4).fill().map(function (el) {
-	        return Array(4).fill({});
-	      });
+	  _createClass(ControlButton, [{
+	    key: '_movePiece',
+	    value: function _movePiece(e) {
+	      this.props.game.keyDownEvent(e, this.props.control);
 	    }
 	  }, {
-	    key: "changeGameSpeed",
-	    value: function changeGameSpeed(e) {
-	      var game = this.props.game;
-	      game.speed = Math.abs(1000 - e.target.value);
-	      if (game.running) {
-	        game.stopGame();
-	        game.startGame();
-	      }
-	      this.forceUpdate();
-	    }
-	  }, {
-	    key: "toggleGame",
-	    value: function toggleGame(e) {
-	      if (this.props.game.running) {
-	        this.props.game.stopGame();
-	      } else {
-	        this.props.game.startGame();
-	      }
-	      this.forceUpdate();
-	    }
-	  }, {
-	    key: "render",
+	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-
-	      var game = this.props.game;
-	      var sideDisplayNext = void 0;
-	      if (!game.gameLost) {
-	        (function () {
-	          var grid = _this2.makeGrid();
-	          game.nextPiece.coords.forEach(function (coord) {
-	            grid[coord[0] + 1][coord[1] - 5] = game.nextPiece.fillColor;
-	          });
-
-	          var rows = grid.map(function (row, rowIdx) {
-	            var units = row.map(function (unit, unitIdx) {
-
-	              return _react2.default.createElement("div", { key: unitIdx, className: "display-block " + unit });
-	            });
-
-	            return _react2.default.createElement(
-	              "div",
-	              { key: rowIdx, className: "row" },
-	              units
-	            );
-	          });
-
-	          sideDisplayNext = _react2.default.createElement(
-	            "div",
-	            { className: "nextpiece-display" },
-	            "Next Piece:",
-	            _react2.default.createElement(
-	              "div",
-	              { className: "nextpiece-display-block" },
-	              rows
-	            )
-	          );
-	        })();
-	      } else {
-	        sideDisplayNext = _react2.default.createElement(
-	          "div",
-	          { className: "nextpiece-display" },
-	          _react2.default.createElement(
-	            "div",
-	            { className: "nextpiece-display-gameover" },
-	            "GAME OVER"
-	          )
-	        );
-	      }
-
-	      var gameState = "START";
-	      if (game.running) {
-	        gameState = "PAUSE";
-	      }
-
 	      return _react2.default.createElement(
-	        "div",
-	        { className: "left-panel" },
-	        _react2.default.createElement(
-	          "div",
-	          { className: "scores" },
-	          "High Score: ",
-	          _react2.default.createElement("br", null),
-	          localStorage.tetrisHighScore,
-	          _react2.default.createElement("br", null),
-	          "Current Score:",
-	          _react2.default.createElement("br", null),
-	          game.score
-	        ),
-	        sideDisplayNext,
-	        _react2.default.createElement(
-	          "div",
-	          { className: "game-buttons-wrapper" },
-	          _react2.default.createElement(
-	            "label",
-	            null,
-	            "Speed: ",
-	            1000 - game.speed,
-	            _react2.default.createElement("input", { className: "slide-bar", onChange: this.changeGameSpeed.bind(this), value: 1000 - game.speed, type: "range", min: "1", max: "1000" })
-	          ),
-	          _react2.default.createElement(
-	            "div",
-	            { className: "game-buttons " + gameState, onClick: this.toggleGame.bind(this) },
-	            gameState
-	          ),
-	          _react2.default.createElement(
-	            "div",
-	            { className: "game-buttons", onClick: this.props.makeNewGame },
-	            "RESET"
-	          )
-	        )
+	        'div',
+	        { className: 'control-button move' + this.props.control, onClick: this._movePiece.bind(this) },
+	        this.props.control
 	      );
 	    }
 	  }]);
 
-	  return LeftPanel;
+	  return ControlButton;
 	}(_react2.default.Component);
 
-	module.exports = LeftPanel;
+	module.exports = ControlButton;
 
 /***/ }
 /******/ ]);

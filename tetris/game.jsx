@@ -35,18 +35,19 @@ class Game {
     this.running = true;
   }
 
-  keyDownEvent(e) {
+  keyDownEvent(e, button) {
+
     if (this.running) {
-      if (e.key === 'a') {
+      if (e.key === 'a' || button === "left") {
         this.updatePosition(CONSTANTS.translateLeft);
-      } else if (e.key === 'd') {
+      } else if (e.key === 'd' || button === "right") {
         this.updatePosition(CONSTANTS.translateRight);
-      } else if (e.key === 's') {
+      } else if (e.key === 's' || button === "down") {
         this.updatePosition(CONSTANTS.translateDown, this.moveDownCallback.bind(this));
       }
-      if (e.key === 'q' && this.currentPiece.coords[1][0] > 1) {
+      if ((e.key === 'q' || button === 'rotateL') && this.currentPiece.coords[1][0] > 1) {
         this.updatePosition(CONSTANTS.rotateCounterClockwise);
-      } else if (e.key === 'e' && this.currentPiece.coords[1][0] > 1) {
+      } else if ((e.key === 'e' || button === 'rotateR') && this.currentPiece.coords[1][0] > 1) {
         this.updatePosition(CONSTANTS.rotateClockwise);
       }
     }

@@ -1,5 +1,7 @@
 import React from 'react';
 
+import ControlButton from './control_button';
+
 class LeftPanel extends React.Component {
   constructor(props) {
     super(props);
@@ -94,6 +96,12 @@ class LeftPanel extends React.Component {
           <div className="game-buttons" onClick={this.props.makeNewGame}>
             RESET
           </div>
+        </div>
+
+        <div className="game-control-buttons">
+          <ControlButton control={"left"} game={this.props.game}/>
+          <ControlButton control={"down"} game={this.props.game}/>
+          <ControlButton control={"right"} game={this.props.game}/>
         </div>
       </div>
     );
